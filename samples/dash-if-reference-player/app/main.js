@@ -1,5 +1,6 @@
 'use strict';
 
+
 var app = angular.module('DashPlayer', ['DashSourcesService', 'DashContributorsService', 'DashIFTestVectorsService', 'angular-flot']);
 
 $(document).ready(function () {
@@ -32,10 +33,11 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
         }
     });
 });
-
+// import cfg from 
 app.controller('DashController', ['$scope', '$window', 'sources', 'contributors', 'dashifTestVectors', function ($scope, $window, sources, contributors, dashifTestVectors) {
+
     $scope.selectedItem = {
-        url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+        url: 'http://192.168.3.1:3000/Video/bbb-manifest-refresh.mpd'
     };
 
     sources.query(function (data) {
@@ -263,6 +265,8 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
     }
 
     // metrics
+    
+    // shenxu
     $scope.videoBitrate = 0;
     $scope.videoIndex = 0;
     $scope.videoPendingIndex = 0;
@@ -280,6 +284,7 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
     $scope.videoEtp = 0;
     $scope.videoLiveLatency = 0;
     $scope.videoPlaybackRate = 1.00;
+
 
     $scope.audioBitrate = 0;
     $scope.audioIndex = 0;
@@ -1186,6 +1191,32 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
         $scope.player.updateSettings({ streaming: { text: { defaultEnabled: $scope.initialSettings.textEnabled } } });
         $scope.player.enableForcedTextStreaming($scope.initialSettings.forceTextStreaming);
         $scope.controlbar.enable();
+
+        // shenxu2
+        const logs = []
+        const intert = setInterval(() => {
+            console.log(123)
+            const log = {
+                BufferLength: $scope.videoBufferLength,
+                BitrateDownloading: $scope.videoBitrate,
+                IndexDownloading: $scope.videoPendingIndex + '/' + $scope.videoPendingMaxIndex,
+                Indexplaying: $scope.videoIndex + '/' + $scope.videoMaxIndex,
+                DroppedFrames: $scope.videoDroppedFrames,
+                Latency: $scope.videoLatency,
+                Download: $scope.videoDownload,
+                Ratio: $scope.videoRatio
+            }
+            logs.push(log)
+            if (logs.length == 20) {
+                let a = document.createElement('a');
+                a.href = 'data:text/plain;charset=utf-8,' + JSON.stringify(logs)
+                a.download = 'log.json'
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                clearInterval(intert)
+            }
+        }, 500);
     };
 
     $scope.doStop = function () {
@@ -1201,8 +1232,8 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
         $scope.player.updateSettings({ 'streaming': { 'trackSwitchMode': switchMode } });
     };
 
-    $scope.setLogLevel = function () {
-        var level = $('input[name=\'log-level\']:checked').val();
+    $scope.setLogLevel = function (level) {
+        var level = level || $('input[name=\'log-level\']:checked').val();
         switch (level) {
             case 'none':
                 $scope.player.updateSettings({ 'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE } });
@@ -2611,3 +2642,31 @@ function legendLabelClickHandler(obj) {
     scope.enableChartByName(id[1], id[0]);
     scope.safeApply();
 }
+
+// setTimeout(() => {
+//     var $scope = angular.element($('body')).scope();
+//     $scope.doLoad();
+//     const logs = []
+//     const intert = setInterval(() => {
+//         const log = {
+//             BufferLength: $scope.videoBufferLength,
+//             BitrateDownloading: $scope.videoBitrate,
+//             IndexDownloading: $scope.videoPendingIndex + '/' + $scope.videoPendingMaxIndex,
+//             Indexplaying: $scope.videoIndex + '/' + $scope.videoMaxIndex,
+//             DroppedFrames: $scope.videoDroppedFrames,
+//             Latency: $scope.videoLatency,
+//             Download: $scope.videoDownload,
+//             Ratio: $scope.videoRatio
+//         }
+//         logs.push(log)
+//         if (logs.length == 20) {
+//             let a = document.createElement('a');
+//             a.href = 'data:text/plain;charset=utf-8,' + JSON.stringify(logs)
+//             a.download = 'log.json'
+//             document.body.appendChild(a);
+//             a.click();
+//             document.body.removeChild(a);
+//             clearInterval(intert)
+//         }
+//     }, 500);
+// }, 2000);

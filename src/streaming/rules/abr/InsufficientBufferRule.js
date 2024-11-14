@@ -102,6 +102,8 @@ function InsufficientBufferRule(config) {
             const safeThroughput = throughput * settings.get().streaming.abr.rules.insufficientBufferRule.parameters.throughputSafetyFactor;
             const bitrate = safeThroughput * bufferLevel / fragmentDuration
 
+            // console.log(mediaType, throughput, bufferLevel, bitrate)
+
             if (isNaN(bitrate) || bitrate <= 0) {
                 return switchRequest
             }
